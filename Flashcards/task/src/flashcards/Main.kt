@@ -6,21 +6,14 @@ import kotlin.random.Random
 import kotlin.random.nextInt
 
 const val DELIMITER = "##"
-
-enum class Command {
-    ADD,
-    REMOVE,
-    IMPORT,
-    EXPORT,
-    ASK,
-    EXIT,
-    LOG,
-    HARDEST_CARD,
-    RESET_STATS
-}
-
 val log = mutableListOf<String>()
 
+
+/**
+ * Command flow loop and entrypoint.
+ *
+ * @param args
+ */
 fun main(args: Array<String>) {
 
     val argsMap = args.toList().chunked(2).associate { it[0] to it[1] }
@@ -50,6 +43,12 @@ fun main(args: Array<String>) {
 
 }
 
+/**
+ * Init flashcards program by import saved flash cards.
+ *
+ * @param argsMap command line arguments
+ * @param stack stack of flash cards
+ */
 fun init(argsMap: Map<String, String>, stack: MutableList<Card>) {
 
     if ("-import" in argsMap) {
@@ -57,25 +56,32 @@ fun init(argsMap: Map<String, String>, stack: MutableList<Card>) {
     }
 }
 
+/**
+ * Custom println command to integrate logging.
+ *
+ * @param message message to print
+ */
 fun println(message: String) {
     log.add(message)
     kotlin.io.println(message)
 }
 
+/**
+ * Custom readln command to integrate logging.
+ *
+ * @return read message from command line
+ */
 fun readln(): String {
     val message = kotlin.io.readln()
     log.add(message)
     return message
 }
 
-data class Card(
-    val term: String,
-    val definition: String,
-    var missed: Int = 0
-) {
-    fun isCorrect(answer: String) = answer == definition
-}
-
+/**
+ * Prompt the user for a command and return it.
+ *
+ * @return user command
+ */
 fun getCommand(): Command {
     println("Input the action (add, remove, import, export, ask, exit, log, hardest card, reset stats):")
 
@@ -89,6 +95,11 @@ fun getCommand(): Command {
 
 }
 
+/**
+ * Add new card to the stack
+ *
+ * @param stack stack of cards
+ */
 fun addNewCard(stack: MutableList<Card>) {
 
     println("The card")
@@ -111,6 +122,11 @@ fun addNewCard(stack: MutableList<Card>) {
     println("The pair (\"${card.term}\":\"${card.definition}\") has been added.")
 }
 
+/**
+ * Remove card from the stack
+ *
+ * @param stack stack of cards
+ */
 fun removeCard(stack: MutableList<Card>) {
 
     println("Which card?")
@@ -125,6 +141,12 @@ fun removeCard(stack: MutableList<Card>) {
 
 }
 
+/**
+ * Export the stack of cards.
+ *
+ * @param stack stack of cards
+ * @param toFile output file
+ */
 fun export(stack: MutableList<Card>, toFile: String? = null) {
 
     var fileName = toFile
@@ -141,6 +163,12 @@ fun export(stack: MutableList<Card>, toFile: String? = null) {
 
 }
 
+/**
+ * Import and append a stack of cards to the existing stack
+ *
+ * @param stack stack of cards
+ * @param fromFile input file
+ */
 fun import(stack: MutableList<Card>, fromFile: String? = null) {
 
     var fileName = fromFile
@@ -175,6 +203,12 @@ fun import(stack: MutableList<Card>, fromFile: String? = null) {
 
 }
 
+/**
+ * Ask the definition of a card term multiple times to learn
+ * the flashcard.
+ *
+ * @param stack stack of cards
+ */
 fun ask(stack: MutableList<Card>) {
 
     println("How many times to ask?")
@@ -206,6 +240,11 @@ fun ask(stack: MutableList<Card>) {
 
 }
 
+/**
+ * Prints the hardest card with the most wrong answers.
+ *
+ * @param stack stack of cards
+ */
 fun hardestCard(stack: MutableList<Card>) {
 
     val maxMissed = stack.maxOfOrNull { it.missed } ?: 0
@@ -221,11 +260,21 @@ fun hardestCard(stack: MutableList<Card>) {
     println(result)
 }
 
+/**
+ * Reset the statistics for the stack of cards.
+ *
+ * @param stack stack of cards.
+ */
 fun resetStats(stack: MutableList<Card>) {
     stack.forEach { it.missed = 0 }
     println("Card statistics have been reset.")
 }
 
+/**
+ * Save log of the flashcard program.
+ *
+ * @param log log to save
+ */
 fun saveLog(log: MutableList<String>) {
 
     println("File name:")
@@ -235,6 +284,13 @@ fun saveLog(log: MutableList<String>) {
     println("The log has been saved.")
 }
 
+/**
+ * Exit the program.
+ *
+ * @param argsMap command line arguments
+ * @param stack stack of cards
+ * @return success
+ */
 fun exit(argsMap: Map<String, String>, stack: MutableList<Card>): Boolean {
 
     if ("-export" in argsMap) {
